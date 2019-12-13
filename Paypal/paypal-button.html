@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Paypal ApiV2</title>
+</head>
+
+<body>
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AX8xzmopoumh0Z6r1h2ll8qMzWffE2-XeIGJIv6i3C_v6dIUgrzhZQQTYJHRyPssGnt6HmiXbG1JPeho&currency=BRL"> // Required. Replace SB_CLIENT_ID with your sandbox client ID.
+        </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+        const valorPagamento = "15,00";
+        const valorpp = parseFloat(valorPagamento.replace(',', '.')) + '';
+    </script>
+
+    <!-- Carrega o botão do Paypal -->
+    <div id="paypal-button-container"></div>
+
+    <script>
+        paypal.Buttons({
+            // Stylo botão
+            // style: {
+            //     tagline: false,
+            //     layout: 'horizontal',
+            // },
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: valorpp
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+
+                return actions.order.capture().then(function (details) {
+                    alert('Parabens! Sua compra foi aprovada ' + details.payer.name.given_name);
+
+                    let data = {
+                        IDUsuario: UsuarioLogado.Usuario.IdUsuario,
+                        OrderID: details.id,
+                        OrderStatus: details.status,
+                        Valor: details.purchase_units[0].amount.value,
+                    };
+
+                    console.log(data.OrderID)
+                    console.log(data.OrderStatus)
+                    console.log(data)
+
+                    $.ajax({
+                        method: 'POST',
+                        url: `Caminho do projeto`,
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                    });
+                });
+            }
+        }).render('#paypal-button-container');
+
+
+        //Teste para puxar dados do api pal
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": "https://api.sandbox.paypal.com/v2/checkout/orders/0RW05667RU358900B",
+            "method": "GET",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer A21AAGpPze4hIzRUcPV-ZPxDRQ-yR8-B_dX1ixj6li2QGVWe2dbaftRTOXtCce35OTPqmYE8ewOefdvfaVOfHslwt94W8gZlw",
+                "Accept": "*/*",
+                "Cache-Control": "no-cache",
+                "Postman-Token": "3ec0115a-8c49-4781-bb5e-b9c270d28f83,fd7bcc19-18ef-49db-a73b-7c13236ed037",
+                "cache-control": "no-cache"
+            },
+            "processData": false,
+            "data": ""
+        }
+
+        //Mostra os dados do PayPal
+        $.ajax(settings).done(function (response) {
+            console.log(response);
+        });
+
+
+
+
+    </script>
+</body>
+
+</html>
